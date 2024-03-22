@@ -18,7 +18,7 @@ provider "aws" {
   region = var.region
 }
 
-module "my_vpc" {
+module "test_vpc" {
   source               = "./modules/vpc"
   cidr_block           = var.vpc_cidr_block
   enable_dns_support   = true
@@ -26,33 +26,33 @@ module "my_vpc" {
   name                 = var.vpc_name
 }
 
-module "my_subnet" {
+module "test_subnet" {
   source                  = "./modules/subnet"
-  vpc_id                  = module.my_vpc.vpc_id
+  vpc_id                  = module.test_vpc.vpc_id
   cidr_block              = var.subnet_cidr_block
   availability_zone       = var.availability_zone
   name                    = var.subnet_name
   map_public_ip_on_launch = true
 }
 
-module "my_igw" {
+module "test_igw" {
   source = "./modules/internet_gateway"
-  vpc_id = module.my_vpc.vpc_id
+  vpc_id = module.test_vpc.vpc_id
   name   = var.igw_name
 }
 
-module "my_route_table" {
+module "test_route_table" {
   source = "./modules/route_table"
-  vpc_id = module.my_vpc.vpc_id
-  subnet_id = module.my_subnet.subnet_id
-  gateway_id = module.my_igw.internet_gateway_id
+  vpc_id = module.test_vpc.vpc_id
+  subnet_id = module.test_subnet.subnet_id
+  gateway_id = module.test_igw.internet_gateway_id
   name   = var.route_table_name
 }
 
-module "my_security_group" {
+module "test_security_group" {
   source              = "./modules/security_group"
   #name_prefix         = var.security_group_name_prefix
-  vpc_id              = module.my_vpc.vpc_id
+  vpc_id              = module.test_vpc.vpc_id
   ssh_cidr_blocks     = var.ssh_cidr_blocks
   http_cidr_blocks    = var.http_cidr_blocks
   https_cidr_blocks   = var.https_cidr_blocks
@@ -60,11 +60,11 @@ module "my_security_group" {
   security_group_name = var.security_group_name
 }
 
-module "my_instance" {
+module "test_instance" {
   source             = "./modules/ec2_instance"
   ami                = var.instance_ami
   instance_type      = var.instance_type
-  subnet_id          = module.my_subnet.subnet_id
-  security_group_ids = [module.my_security_group.security_group_id]
+  subnet_id          = module.test_subnet.subnet_id
+  security_group_ids = [module.test_security_group.security_group_id]
   name               = var.instance_name
 }
